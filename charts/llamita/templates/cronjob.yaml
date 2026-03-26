@@ -1,0 +1,53 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: scale-deployment-up
+spec:
+  schedule: {{ .Values.docinsights_cronjob.schedule_up }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: scale-deployment-sa
+          containers:
+          - name: scale-up
+            image: bitnami/kubectl:latest  # Or any image with kubectl
+            command:
+            - /bin/sh
+            - -v
+            - -x
+            - -c
+            - kubectl scale deployment  {{ include "docinsights.fullname" . }} --replicas={{ .Values.docinsights_cronjob.replicas_up }} -n {{ .Release.Namespace }}
+          restartPolicy: OnFailure
+          envFrom:
+            - configMapRef:
+                name: envvarsconfigmap-{{ .Release.Name }}
+  #prevent overlapping jobs
+  concurrencyPolicy: Forbid
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: scale-deployment-down
+spec:
+  schedule: {{ .Values.docinsights_cronjob.schedule_down }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: scale-deployment-sa
+          containers:
+          - name: scale-down
+            image: bitnami/kubectl:latest  # Or any image with kubectl
+            command:
+            - /bin/sh
+            - -v
+            - -x
+            - -c
+            - kubectl scale deployment  {{ include "docinsights.fullname" . }} --replicas={{ .Values.docinsights_cronjob.replicas_down }} -n {{ .Release.Namespace }}
+          restartPolicy: OnFailure
+          envFrom:
+            - configMapRef:
+                name: envvarsconfigmap-{{ .Release.Name }}
+   #prevent overlapping jobs
+  concurrencyPolicy: Forbid

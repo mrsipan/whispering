@@ -1,0 +1,165 @@
+# This will set the replicaset count more information can be found here:
+# https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+replicaCount: 1
+
+# This sets the container image more information can be found here:
+# https://kubernetes.io/docs/concepts/containers/images/
+image:
+  # repository: 867279688038.dkr.ecr.us-east-1.amazonaws.com/sncr/sip/docinsights
+  # repository: ghcr.io/mrsipan/docinsights
+  repository: nexusproxy1001.aws1.us-east-1.ivpc.mgmt.cloud.synchronoss.net:5000/sncr/sip/docinsights
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "b4820-2"
+
+# This is for the secretes for pulling an image from a private repository more
+# information can be found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets: []
+# This is to override the chart name.
+nameOverride: ""
+fullnameOverride: ""
+
+# This section builds out the service account more information can be found
+# here: https://kubernetes.io/docs/concepts/security/service-accounts/
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# This is for setting Kubernetes Annotations to a Pod.  For more information
+# checkout:
+# https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+podAnnotations: {}
+
+# This is for setting Kubernetes Labels to a Pod.  For more information
+# checkout:
+# https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# This is for setting up a service more information can be found here:
+# https://kubernetes.io/docs/concepts/services-networking/service/
+
+service:
+
+  # This sets the service type more information can be found here:
+  # https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+  type: ClusterIP
+
+  # This sets the ports more information can be found here:
+  # https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+  port: 80
+
+ingress:
+  enabled: true
+  className: ""
+  annotations:
+    cert-manager.io/cluster-issuer: sncr-letsencrypt-clusterissuer
+    external-dns.alpha.kubernetes.io/hostname: docinsights.use.eks.mcap.sip.dev.cloud.synchronoss.net
+    external-dns.alpha.kubernetes.io/target: sip-eks-mcap-use-dev-dft-nlb-6ef2d80b0cc8f2d3.elb.us-east-1.amazonaws.com
+    ingress.kubernetes.io/whitelist-source-range: 68.170.18.0/24, 68.170.19.0/24,38.142.107.248/29, 87.198.172.216/30, 87.198.165.116/30, 87.198.172.222/31, 210.80.199.176/28, 113.29.10.240/28, 103.231.232.0/24, 59.154.176.112/25, 50.237.213.130/32
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: docinsights.use.eks.mcap.sip.dev.cloud.synchronoss.net
+      paths:
+        - backend:
+            service:
+              name: docinsights
+              port:
+                number: 80
+          path: /
+          pathType: ImplementationSpecific
+  tls:
+    - hosts:
+      - docinsights.use.eks.mcap.sip.dev.cloud.synchronoss.net
+      secretName: ssl-default
+resources:
+  limits:
+    cpu: 4000m
+    memory: 10Gi
+  requests:
+    cpu: 4000m
+    memory: 10Gi
+
+# This is to setup the liveness and readiness probes more information can be
+# found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+livenessProbe:
+  initialDelaySeconds: 300
+  httpGet:
+    path: /health
+    port: http
+readinessProbe:
+  initialDelaySeconds: 300
+  httpGet:
+    path: /health
+    port: http
+
+# This section is for setting up autoscaling more information can be found
+# here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 90
+
+# Additional volumes on the output Deployment definition.
+volumes:
+- name: gguf-volume
+  persistentVolumeClaim:
+    claimName: sncr-efs-pvc
+
+volumeMounts:
+- name: gguf-volume
+  mountPath: "/mnt/llama.cpp"
+  readOnly: false
+
+pvc:
+  enabled: true
+  name: sncr-efs-pvc
+  storage: 71Gi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+envvars:
+  LLAMA_ARG_CTX_SIZE: '16384'
+  LLAMA_ARG_N_PARALLEL: '4'
+  LLAMA_ARG_ENDPOINT_METRICS: '1'
+  LLAMA_ARG_ENDPOINT_SLOTS: '1'
+  LLAMA_ARG_HOST: '0.0.0.0'
+  LLAMA_ARG_TIMEOUT: '900'
+  LLAMA_ARG_THREADS: '-1'
+  LLAMA_ARG_PORT: '80'
+  LLAMA_API_KEY: mPt3X5N_dY9W
+  MODEL_URL: 'https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/resolve/main/Meta-Llama-3.1-8B-Instruct-Q8_0.gguf'
+  MODEL_SHA256: '9da71c45c90a821809821244d4971e5e5dfad7eb091f0b8ff0546392393b6283'
+
+docinsights_cronjob:
+  schedule_up: '0 0 4 * *'
+  replicas_up: '9'
+  schedule_down: '0 0 7 * *'
+  replicas_down: '0'
+

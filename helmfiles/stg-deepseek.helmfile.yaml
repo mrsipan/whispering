@@ -1,0 +1,93 @@
+repositories:
+  - name: nexus-helm-releases
+    url: https://docker-write.synchronoss.net:8443/repository/helm-releases
+
+releases:
+  - name: deepseek
+    namespace: llm
+    # chart: ../charts/docinsights
+    chart: nexus-helm-releases/docinsights
+    version: 0.0.9
+    values:
+      - replicaCount: 1
+        image:
+          repository: nexusproxy1001.aws1.us-east-1.ivpc.mgmt.cloud.synchronoss.net:5000/sncr/sip/docinsights
+          pullPolicy: IfNotPresent
+          tag: "b4595"
+        ingress:
+          enabled: true
+          className: ""
+          annotations:
+            cert-manager.io/cluster-issuer: sncr-letsencrypt-clusterissuer
+            external-dns.alpha.kubernetes.io/hostname: deepseek.use.eks.mcap.sip.dev.cloud.synchronoss.net
+            external-dns.alpha.kubernetes.io/target: sip-eks-mcap-use-dev-dft-nlb-6ef2d80b0cc8f2d3.elb.us-east-1.amazonaws.com
+            ingress.kubernetes.io/whitelist-source-range: 68.170.18.0/24, 68.170.19.0/24,38.142.107.248/29, 87.198.172.216/30, 87.198.165.116/30, 87.198.172.222/31, 210.80.199.176/28, 113.29.10.240/28, 103.231.232.0/24, 59.154.176.112/25, 50.237.213.130/32
+            kubernetes.io/ingress.class: nginx
+            kubernetes.io/tls-acme: "true"
+          hosts:
+            - host: deepseek.use.eks.mcap.sip.dev.cloud.synchronoss.net
+              paths:
+                - backend:
+                    service:
+                      name: deepseek
+                      port:
+                        number: 80
+                  path: /
+                  pathType: ImplementationSpecific
+          tls:
+            - hosts:
+              - deepseek.use.eks.mcap.sip.dev.cloud.synchronoss.net
+              secretName: ssl-default
+        resources:
+          limits:
+            cpu: 6000m
+            memory: 12Gi
+          requests:
+            cpu: 6000m
+            memory: 12Gi
+
+        livenessProbe:
+          initialDelaySeconds: 1200
+          httpGet:
+            path: /health
+            port: http
+        readinessProbe:
+          initialDelaySeconds: 1200
+          httpGet:
+            path: /health
+            port: http
+
+        autoscaling:
+          enabled: true
+          minReplicas: 1
+          maxReplicas: 3
+          targetCPUUtilizationPercentage: 90
+
+        # Additional volumes on the output Deployment definition.
+        volumes:
+        - name: gguf-volume-deepseek
+          persistentVolumeClaim:
+            claimName: sncr-efs-pvc-deepseek
+
+        volumeMounts:
+        - name: gguf-volume-deepseek
+          mountPath: "/root/.cache/llama.cpp"
+          readOnly: false
+
+        pvc:
+          enabled: true
+          name: sncr-efs-pvc-deepseek
+          storage: 53Gi
+
+        envvars:
+          LLAMA_API_KEY:
+          LLAMA_ARG_CTX_SIZE: '16384'
+          LLAMA_ARG_ENDPOINT_METRICS: '1'
+          LLAMA_ARG_ENDPOINT_SLOTS: '1'
+          LLAMA_ARG_HOST: '0.0.0.0'
+          LLAMA_ARG_MODEL_URL: 'https://huggingface.co/unsloth/DeepSeek-R1-Distill-Llama-8B-GGUF/resolve/main/DeepSeek-R1-Distill-Llama-8B-Q8_0.gguf'
+          LLAMA_ARG_N_PARALLEL: '4'
+          LLAMA_ARG_PORT: '80'
+          LLAMA_ARG_THREADS: '-1'
+          LLAMA_ARG_TIMEOUT: '900'
+

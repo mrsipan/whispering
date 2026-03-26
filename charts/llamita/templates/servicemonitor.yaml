@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: docinsights-service-monitor-{{ .Release.Name }}
+  labels:
+    app: docinsights
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/name: docinsights
+  endpoints:
+  - port: http
+    interval: 15s

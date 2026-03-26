@@ -1,0 +1,6 @@
+releases:
+  - name: llama3
+    namespace: llm
+    chart: ../charts/docinsights/
+    values:
+      - ../charts/docinsights/values.yaml

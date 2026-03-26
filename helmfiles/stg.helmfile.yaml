@@ -1,0 +1,6 @@
+releases:
+  - name: docinsights
+    namespace: llm
+    chart: ../charts/docinsights/
+    values:
+      - ../charts/docinsights/values.yaml
