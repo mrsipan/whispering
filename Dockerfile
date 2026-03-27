@@ -3,7 +3,7 @@ FROM fedora:latest AS build-stage
 
 ARG LLAMA_CPP_VERSION_ARG
 ENV LLAMA_CPP_VERSION=$LLAMA_CPP_VERSION_ARG
-COPY mc.pem /etc/pki/ca-trust/source/anchors/mc.pem
+COPY zscaler.pem /etc/pki/ca-trust/source/anchors/zscaler.pem
 RUN update-ca-trust extract
 
 RUN dnf group install -y c-development
