@@ -1,24 +1,24 @@
-# Llamita Cluster Deployment in Kubernetes
+# Whispering Cluster Deployment in Kubernetes
 
-This deployment installs/upgrades *Llamita*, an internal *Large Language
-Model (LLM)* endpoint for use within Kubernetes.
+This deployment installs/upgrades *whispering*, an internal *STT engine
+Mode endpoint for use within Kubernetes.
 
 ## The Chart
 
-There is a *helm chart* available under the name *docinsights* in the *Nexus
+There is a *helm chart* available under the name *whispering* in the *Nexus
 Helm Repository*.
 
 ### Verify that the kubernetes manifests render correctly
 
 ``` {.bash org-language="sh"}
-helm template docinsights <nexus-chart> \
+helm template whispering <nexus-chart> \
      -f values.yaml
 ```
 
 ### Deploy the chart
 
 ``` {.bash org-language="sh"}
-helm -n llm upgrade --install docinsights <nexus-chart> \
+helm -n llm upgrade --install whispering <nexus-chart> \
      -f values.yaml
 ```
 
@@ -26,12 +26,12 @@ helm -n llm upgrade --install docinsights <nexus-chart> \
 
 The *source code* for the project is located here:
 
-<https://stash.synchronoss.net/projects/BDA/repos/docinsights/browse>
+<https://stash.synchronoss.net/projects/BDA/repos/whispering/browse>
 
 From the deployment point of view the most important file is the
 *values.yaml* file:
 
-<https://stash.synchronoss.net/projects/BDA/repos/docinsights/browse/charts/docinsights/values.yaml>
+<https://stash.synchronoss.net/projects/BDA/repos/whispering/browse/charts/whispering/values.yaml>
 
 ## The Server Configuration
 
@@ -78,17 +78,17 @@ ingress:
   className: ""
   annotations:
     cert-manager.io/cluster-issuer: sncr-letsencrypt-clusterissuer
-    external-dns.alpha.kubernetes.io/hostname: docinsights.use.eks.mcap.sip.dev.cloud.synchronoss.net
+    external-dns.alpha.kubernetes.io/hostname: whispering.use.eks.mcap.sip.dev.cloud.synchronoss.net
     external-dns.alpha.kubernetes.io/target: sip-eks-mcap-use-dev-dft-nlb-6ef2d80b0cc8f2d3.elb.us-east-1.amazonaws.com
     ingress.kubernetes.io/whitelist-source-range: 68.170.18.0/24, 68.170.19.0/24,38.142.107.248/29, 87.198.172.216/30, 87.198.165.116/30, 87.198.172.222/31, 210.80.199.176/28, 113.29.10.240/28, 103.231.232.0/24, 59.154.176.112/25, 50.237.213.130/32
     kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
   hosts:
-    - host: docinsights.use.eks.mcap.sip.dev.cloud.synchronoss.net
+    - host: whispering.use.eks.mcap.sip.dev.cloud.synchronoss.net
       paths:
         - backend:
             service:
-              name: docinsights
+              name: whispering
               port:
                 number: 80
           path: /
