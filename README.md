@@ -1,7 +1,7 @@
 # Whispering Cluster Deployment in Kubernetes
 
 This deployment installs/upgrades *whispering*, an internal *STT engine
-Mode endpoint for use within Kubernetes.
+Model* endpoint for use within Kubernetes.
 
 ## The Chart
 
