@@ -4,10 +4,10 @@
 LW_ACCOUNT_NAME = $(bamboo.LW_ACCOUNT_NAME)
 LW_ACCESS_TOKEN_PASSWORD = $(bamboo.LW_ACCESS_TOKEN_PASSWORD)
 
-version_chart := 0.0.12
-version_app := b4820
-img_patch := 2
-name := docinsights
+version_chart := 0.0.1
+version_app := v1.8.4
+img_patch := 1
+name := whispering
 tmpdir := $(shell mktemp -d)
 curdir := $(shell pwd)
 docker := $(shell command -v podman || command -v docker)
@@ -16,8 +16,10 @@ namespace := llm
 
 docker-build:
 	-$(docker) rmi $(name)
-	$(docker) build --platform=linux/amd64 -t $(name) \
-		-f $(distro).Dockerfile --build-arg=LLAMA_CPP_VERSION_ARG=$(version_app) .
+	# $(docker) build --platform=linux/amd64 -t $(name) \
+	#
+	$(docker) build --tls-verify=false -t $(name) \
+		-f Dockerfile --build-arg=LLAMA_CPP_VERSION_ARG=$(version_app) .
 	$(docker) tag $(name):latest \
 		867279688038.dkr.ecr.us-east-1.amazonaws.com/sncr/sip/$(name):$(version_app)-$(img_patch)
 	$(docker) tag $(name):latest \
