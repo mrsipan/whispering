@@ -26,12 +26,23 @@ docker-build:
 		ghcr.io/mrsipan/$(name):$(version_app)-$(img_patch)
 	$(docker) tag $(name):latest \
 		docker-write.synchronoss.net/sncr/sip/$(name):$(version_app)-$(img_patch)
+	$(docker) tag $(name):latest \
+		ghcr.io/mrsipan/$(name):$(version_app)-$(img_patch)
 
 helm-package:
 	sed -i -e 's/tag: "\(.*\)"/tag: "$(version_app)-$(img_patch)"/g' charts/$(name)/values.yaml
 	sed -i -e 's/appVersion: "\(.*\)"/appVersion: "$(version_app)"/g' charts/$(name)/Chart.yaml
 	sed -i -e 's/version: \(.*\)/version: $(version_chart)/g' charts/$(name)/Chart.yaml
 	helm package charts/$(name)
+	sed -i -e 's/tag: "\(.*\)"/tag: "$(version_app)-$(img_patch)"/g' charts/$(name)gradio/values.yaml
+	sed -i -e 's/appVersion: "\(.*\)"/appVersion: "$(version_app)"/g' charts/$(name)gradio/Chart.yaml
+	sed -i -e 's/version: \(.*\)/version: $(version_chart)/g' charts/$(name)gradio/Chart.yaml
+	helm package charts/$(name)gradio
+	sed -i -e 's/tag: "\(.*\)"/tag: "$(version_app)-$(img_patch)"/g' charts/$(name)api/values.yaml
+	sed -i -e 's/appVersion: "\(.*\)"/appVersion: "$(version_app)"/g' charts/$(name)api/Chart.yaml
+	sed -i -e 's/version: \(.*\)/version: $(version_chart)/g' charts/$(name)api/Chart.yaml
+	helm package charts/$(name)api
+
 
 helm-upgrade:
 	helm -n $(namespace) upgrade --install $(name) -f charts/$(name)/values.yaml charts/$(name)/
@@ -68,7 +79,19 @@ docker-login-nexus:
 docker-push-nexus:
 	$(docker) push docker-write.synchronoss.net/sncr/sip/$(name):$(version_app)-$(img_patch)
 
-docker-all: docker-build docker-login-nexus docker-push-nexus
+docker-push-github:
+	$(docker) push ghcr.io/mrsipan/$(name):$(version_app)-$(img_patch)
+
+get-models:
+# 	cd models-default/dotsocr && curl -O -L "https://huggingface.co/anthonym21/dots.ocr-GGUF/resolve/main/Dots.Ocr-1.8B-F16.gguf"
+# 	cd models-default/dotsocr && curl -O -L "https://huggingface.co/anthonym21/dots.ocr-GGUF/resolve/main/mmproj-Dots.Ocr-F16.gguf"
+	find .
+	# cd models-default/glmocr-BF16 && rm -rf * && curl -O -L "https://huggingface.co/ggml-org/GLM-OCR-GGUF/resolve/main/GLM-OCR-Q8_0.gguf"
+
+
+docker-all: docker-build docker-login-nexus docker-push-nexus docker-push-github
+
+
 
 helmfile-mldev:
 	helmfile sync -f helmfiles/mldev.helmfile.yaml
