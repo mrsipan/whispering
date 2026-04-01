@@ -1,6 +1,6 @@
 releases:
-  - name: docinsights
+  - name: whispering
     namespace: llm
-    chart: ../charts/docinsights/
+    chart: ../charts/whispering/
     values:
-      - ../charts/docinsights/values.yaml
+      - ../charts/whispering/values.yaml

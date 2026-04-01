@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "docinsights.fullname" . }}
+  name: {{ include "whispering.fullname" . }}
   labels:
-    {{- include "docinsights.labels" . | nindent 4 }}
+    {{- include "whispering.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -12,4 +12,4 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "docinsights.selectorLabels" . | nindent 4 }}
+    {{- include "whispering.selectorLabels" . | nindent 4 }}

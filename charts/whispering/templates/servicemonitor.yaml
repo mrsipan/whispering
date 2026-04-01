@@ -1,14 +1,14 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: docinsights-service-monitor-{{ .Release.Name }}
+  name: whispering-service-monitor-{{ .Release.Name }}
   labels:
-    app: docinsights
+    app: whispering
 spec:
   selector:
     matchLabels:
       app.kubernetes.io/instance: {{ .Release.Name }}
-      app.kubernetes.io/name: docinsights
+      app.kubernetes.io/name: whispering
   endpoints:
   - port: http
     interval: 15s

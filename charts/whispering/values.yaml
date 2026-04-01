@@ -5,9 +5,9 @@ replicaCount: 1
 # This sets the container image more information can be found here:
 # https://kubernetes.io/docs/concepts/containers/images/
 image:
-  # repository: 867279688038.dkr.ecr.us-east-1.amazonaws.com/sncr/sip/docinsights
-  # repository: ghcr.io/mrsipan/docinsights
-  repository: nexusproxy1001.aws1.us-east-1.ivpc.mgmt.cloud.synchronoss.net:5000/sncr/sip/docinsights
+  # repository: 867279688038.dkr.ecr.us-east-1.amazonaws.com/sncr/sip/whispering
+  # repository: ghcr.io/mrsipan/whispering
+  repository: nexusproxy1001.aws1.us-east-1.ivpc.mgmt.cloud.synchronoss.net:5000/sncr/sip/whispering
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
@@ -73,24 +73,24 @@ ingress:
   className: ""
   annotations:
     cert-manager.io/cluster-issuer: sncr-letsencrypt-clusterissuer
-    external-dns.alpha.kubernetes.io/hostname: docinsights.use.eks.mcap.sip.dev.cloud.synchronoss.net
+    external-dns.alpha.kubernetes.io/hostname: whispering.use.eks.mcap.sip.dev.cloud.synchronoss.net
     external-dns.alpha.kubernetes.io/target: sip-eks-mcap-use-dev-dft-nlb-6ef2d80b0cc8f2d3.elb.us-east-1.amazonaws.com
     ingress.kubernetes.io/whitelist-source-range: 68.170.18.0/24, 68.170.19.0/24,38.142.107.248/29, 87.198.172.216/30, 87.198.165.116/30, 87.198.172.222/31, 210.80.199.176/28, 113.29.10.240/28, 103.231.232.0/24, 59.154.176.112/25, 50.237.213.130/32
-    kubernetes.io/ingress.class: nginx
+    kubernetes.io/ingress.class: nginx-internal
     kubernetes.io/tls-acme: "true"
   hosts:
-    - host: docinsights.use.eks.mcap.sip.dev.cloud.synchronoss.net
+    - host: whispering.use.eks.mcap.sip.dev.cloud.synchronoss.net
       paths:
         - backend:
             service:
-              name: docinsights
+              name: whispering
               port:
                 number: 80
           path: /
           pathType: ImplementationSpecific
   tls:
     - hosts:
-      - docinsights.use.eks.mcap.sip.dev.cloud.synchronoss.net
+      - whispering.use.eks.mcap.sip.dev.cloud.synchronoss.net
       secretName: ssl-default
 resources:
   limits:
@@ -157,7 +157,7 @@ envvars:
   MODEL_URL: 'https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/resolve/main/Meta-Llama-3.1-8B-Instruct-Q8_0.gguf'
   MODEL_SHA256: '9da71c45c90a821809821244d4971e5e5dfad7eb091f0b8ff0546392393b6283'
 
-docinsights_cronjob:
+whispering_cronjob:
   schedule_up: '0 0 4 * *'
   replicas_up: '9'
   schedule_down: '0 0 7 * *'

@@ -5,13 +5,13 @@ repositories:
 releases:
   - name: deepseek
     namespace: llm
-    # chart: ../charts/docinsights
-    chart: nexus-helm-releases/docinsights
+    # chart: ../charts/whispering
+    chart: nexus-helm-releases/whispering
     version: 0.0.9
     values:
       - replicaCount: 1
         image:
-          repository: nexusproxy1001.aws1.us-east-1.ivpc.mgmt.cloud.synchronoss.net:5000/sncr/sip/docinsights
+          repository: nexusproxy1001.aws1.us-east-1.ivpc.mgmt.cloud.synchronoss.net:5000/sncr/sip/whispering
           pullPolicy: IfNotPresent
           tag: "b4595"
         ingress:
